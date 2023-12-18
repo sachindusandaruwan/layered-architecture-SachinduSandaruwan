@@ -1,9 +1,6 @@
 package com.example.layeredarchitecture.controller;
 
-import com.example.layeredarchitecture.dao.CustomerDAOImpl;
-import com.example.layeredarchitecture.dao.ItemDAOImpl;
-import com.example.layeredarchitecture.dao.OrderDAOImpl;
-import com.example.layeredarchitecture.dao.OrderDetailsDAOImpl;
+import com.example.layeredarchitecture.dao.*;
 import com.example.layeredarchitecture.db.DBConnection;
 import com.example.layeredarchitecture.model.CustomerDTO;
 import com.example.layeredarchitecture.model.ItemDTO;
@@ -55,8 +52,10 @@ public class PlaceOrderFormController {
     public Label lblTotal;
     private String orderId;
 
-    CustomerDAOImpl customerDAO=new CustomerDAOImpl();
-    ItemDAOImpl itemDAO=new ItemDAOImpl();
+    CustomerDAO customerDAO=new CustomerDAOImpl();
+    ItemDAO itemDAO=new ItemDAOImpl();
+    OrderDAO orderDAO=new OrderDAOImpl();
+    OrderDetailsDAO orderDetailsDAO=new OrderDetailsDAOImpl();
 
     public void initialize() throws SQLException, ClassNotFoundException {
 
@@ -116,14 +115,16 @@ public class PlaceOrderFormController {
                         ResultSet rst = pstm.executeQuery();
                         rst.next();*/
                         //CustomerDAOImpl customerDAO1=new CustomerDAOImpl();
-                        CustomerDTO dto=customerDAO.searchCustomer(newValue);
+                        CustomerDTO customerDTO = customerDAO.searchCustomer(newValue + "");
+                        txtCustomerName.setText(customerDTO.getName());
 
-                        CustomerDTO customerDTO = new CustomerDTO(newValue + "",
+
+                       /* CustomerDTO customerDTO = new CustomerDTO(newValue + "",
                                 dto.getName(),
                                 dto.getAddress());
 
 
-                        txtCustomerName.setText(customerDTO.getName());
+                        txtCustomerName.setText(customerDTO.getName());*/
 
                     } catch (SQLException e) {
                         new Alert(Alert.AlertType.ERROR, "Failed to find the customer " + newValue + "" + e).show();
@@ -229,7 +230,7 @@ public class PlaceOrderFormController {
             Statement stm = connection.createStatement();
             ResultSet rst = stm.executeQuery("SELECT oid FROM `Orders` ORDER BY oid DESC LIMIT 1;");*/
 
-            OrderDAOImpl orderDAO=new OrderDAOImpl();
+            //OrderDAO orderDAO=new OrderDAOImpl();
             ResultSet rst=orderDAO.generateNewOrderId();
 
             return rst.next() ? String.format("OID-%03d", (Integer.parseInt(rst.getString("oid").replace("OID-", "")) + 1)) : "OID-001";
@@ -383,7 +384,7 @@ public class PlaceOrderFormController {
 
             connection=DBConnection.getDbConnection().getConnection();
 
-            OrderDAOImpl orderDAO=new OrderDAOImpl();
+            //saOrderDAO orderDAO=new OrderDAOImpl();
             boolean b1=orderDAO.existOrder(orderId);
             if (b1){
                 return false;
@@ -391,8 +392,8 @@ public class PlaceOrderFormController {
 
             connection.setAutoCommit(false);
 
-            OrderDAOImpl orderDAO1=new OrderDAOImpl();
-            boolean b2=orderDAO1.saveOrder(new OrderDTO(orderId,orderDate,customerId));
+            //OrderDAO orderDAO1=new OrderDAOImpl();
+            boolean b2=orderDAO.saveOrder(new OrderDTO(orderId,orderDate,customerId));
 
             if (!b2){
                 connection.rollback();
@@ -403,7 +404,7 @@ public class PlaceOrderFormController {
             //stm = connection.prepareStatement("INSERT INTO OrderDetails (oid, itemCode, unitPrice, qty) VALUES (?,?,?,?)");
 
             for (OrderDetailDTO detail : orderDetails) {
-                OrderDetailsDAOImpl orderDetailsDAO=new OrderDetailsDAOImpl();
+                //OrderDetailsDAO orderDetailsDAO=new OrderDetailsDAOImpl();
                 boolean b3=orderDetailsDAO.saveOrderDetails(detail);
 
 

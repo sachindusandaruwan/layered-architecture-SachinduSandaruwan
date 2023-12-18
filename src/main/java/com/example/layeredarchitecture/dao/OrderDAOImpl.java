@@ -6,7 +6,8 @@ import com.example.layeredarchitecture.model.OrderDTO;
 import java.sql.*;
 import java.time.LocalDate;
 
-public class OrderDAOImpl {
+public class OrderDAOImpl implements OrderDAO {
+    @Override
     public ResultSet generateNewOrderId() throws SQLException, ClassNotFoundException {
         Connection connection = DBConnection.getDbConnection().getConnection();
         Statement stm = connection.createStatement();
@@ -15,6 +16,7 @@ public class OrderDAOImpl {
     }
 
 
+    @Override
     public boolean existOrder(String orderId) throws SQLException, ClassNotFoundException {
         Connection connection = DBConnection.getDbConnection().getConnection();
         PreparedStatement stm = connection.prepareStatement("SELECT oid FROM `Orders` WHERE oid=?");
@@ -22,6 +24,7 @@ public class OrderDAOImpl {
         return stm.executeQuery().next();
     }
 
+    @Override
     public boolean saveOrder(OrderDTO orderDTO) throws SQLException, ClassNotFoundException {
         Connection connection=DBConnection.getDbConnection().getConnection();
         System.out.println(orderDTO.getOrderDate());
