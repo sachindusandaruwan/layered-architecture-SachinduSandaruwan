@@ -1,8 +1,7 @@
 package com.example.layeredarchitecture.controller;
 
-import com.example.layeredarchitecture.dao.CustomerDAO;
-import com.example.layeredarchitecture.dao.CustomerDAOImpl;
-import com.example.layeredarchitecture.db.DBConnection;
+import com.example.layeredarchitecture.dao.custom.CustomerDAO;
+import com.example.layeredarchitecture.dao.custom.impl.CustomerDAOImpl;
 import com.example.layeredarchitecture.model.CustomerDTO;
 import com.example.layeredarchitecture.view.tdm.CustomerTM;
 import com.jfoenix.controls.JFXButton;
@@ -78,7 +77,7 @@ public class ManageCustomersFormController {
             ResultSet rst = stm.executeQuery("SELECT * FROM Customer");*/
 
             //CustomerDAO customerDAO=new CustomerDAOImpl();
-            ArrayList<CustomerDTO> allCustomer=customerDAO.getAllCustomers();
+            ArrayList<CustomerDTO> allCustomer=customerDAO.getAll();
             for (CustomerDTO dto:allCustomer){
                 tblCustomers.getItems().add(
                         new CustomerTM(
@@ -169,7 +168,7 @@ public class ManageCustomersFormController {
                 pstm.executeUpdate();*/
 
                 //CustomerDAO customerDAO=new CustomerDAOImpl();
-                boolean isSaved=customerDAO.saveCustomer(new CustomerDTO(id,name,address));
+                boolean isSaved=customerDAO.save(new CustomerDTO(id,name,address));
 
                 if(isSaved) {
 
@@ -197,7 +196,7 @@ public class ManageCustomersFormController {
                 pstm.executeUpdate();*/
 
                 //CustomerDAO customerDAO=new CustomerDAOImpl();
-                boolean isUpdate=customerDAO.updateCustomer(new CustomerDTO(name,address,id));
+                boolean isUpdate=customerDAO.update(new CustomerDTO(id,name,address));
                 if (isUpdate){
                     CustomerTM selectedCustomer = tblCustomers.getSelectionModel().getSelectedItem();
                     selectedCustomer.setName(name);
@@ -224,7 +223,7 @@ public class ManageCustomersFormController {
         pstm.setString(1, id);
         return pstm.executeQuery().next();*/
         //CustomerDAO customerDAO=new CustomerDAOImpl();
-        return customerDAO.existCustomer(id);
+        return customerDAO.exist(id);
     }
 
 
@@ -236,7 +235,7 @@ public class ManageCustomersFormController {
                 new Alert(Alert.AlertType.ERROR, "There is no such customer associated with the id " + id).show();
             }
             //CustomerDAO customerDAO=new CustomerDAOImpl();
-            boolean isDeleted=customerDAO.deleteCustomer(id);
+            boolean isDeleted=customerDAO.delete(id);
             /*Connection connection = DBConnection.getDbConnection().getConnection();
             PreparedStatement pstm = connection.prepareStatement("DELETE FROM Customer WHERE id=?");
             pstm.setString(1, id);
@@ -258,7 +257,7 @@ public class ManageCustomersFormController {
     private String generateNewId() {
         try {
             //CustomerDAO customerDAO=new CustomerDAOImpl();
-            return customerDAO.generateNewId();
+            return customerDAO.generate();
             /*Connection connection = DBConnection.getDbConnection().getConnection();
             ResultSet rst = connection.createStatement().executeQuery("SELECT id FROM Customer ORDER BY id DESC LIMIT 1;");
             if (rst.next()) {

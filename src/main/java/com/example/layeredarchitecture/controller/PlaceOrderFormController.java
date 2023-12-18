@@ -1,6 +1,13 @@
 package com.example.layeredarchitecture.controller;
 
-import com.example.layeredarchitecture.dao.*;
+import com.example.layeredarchitecture.dao.custom.CustomerDAO;
+import com.example.layeredarchitecture.dao.custom.ItemDAO;
+import com.example.layeredarchitecture.dao.custom.OrderDAO;
+import com.example.layeredarchitecture.dao.custom.OrderDetailsDAO;
+import com.example.layeredarchitecture.dao.custom.impl.CustomerDAOImpl;
+import com.example.layeredarchitecture.dao.custom.impl.ItemDAOImpl;
+import com.example.layeredarchitecture.dao.custom.impl.OrderDAOImpl;
+import com.example.layeredarchitecture.dao.custom.impl.OrderDetailsDAOImpl;
 import com.example.layeredarchitecture.db.DBConnection;
 import com.example.layeredarchitecture.model.CustomerDTO;
 import com.example.layeredarchitecture.model.ItemDTO;
@@ -105,7 +112,7 @@ public class PlaceOrderFormController {
 
                     try {
                         //CustomerDAOImpl customerDAO=new CustomerDAOImpl();
-                        if (!customerDAO.existCustomer(newValue + "")) {
+                        if (!customerDAO.exist(newValue + "")) {
 //                            "There is no such customer associated with the id " + id
                             new Alert(Alert.AlertType.ERROR, "There is no such customer associated with the id " + newValue + "").show();
                         }
@@ -115,7 +122,7 @@ public class PlaceOrderFormController {
                         ResultSet rst = pstm.executeQuery();
                         rst.next();*/
                         //CustomerDAOImpl customerDAO1=new CustomerDAOImpl();
-                        CustomerDTO customerDTO = customerDAO.searchCustomer(newValue + "");
+                        CustomerDTO customerDTO = customerDAO.search(newValue + "");
                         txtCustomerName.setText(customerDTO.getName());
 
 
@@ -150,7 +157,7 @@ public class PlaceOrderFormController {
                 /*Find Item*/
                 try {
                     //ItemDAOImpl itemDAO=new ItemDAOImpl();
-                    if (!itemDAO.existItem(newItemCode + "")) {
+                    if (!itemDAO.exist(newItemCode + "")) {
 //                        throw new NotFoundException("There is no such item associated with the id " + code);
                     }
 
@@ -160,7 +167,7 @@ public class PlaceOrderFormController {
                     ResultSet rst = pstm.executeQuery();
                     rst.next();*/
                     //ItemDAOImpl itemDAO1=new ItemDAOImpl();
-                    ItemDTO dto=itemDAO.findItem(newItemCode);
+                    ItemDTO dto=itemDAO.search(newItemCode);
 
                     ItemDTO item = new ItemDTO(newItemCode + "",
                             dto.getDescription(),
@@ -231,9 +238,9 @@ public class PlaceOrderFormController {
             ResultSet rst = stm.executeQuery("SELECT oid FROM `Orders` ORDER BY oid DESC LIMIT 1;");*/
 
             //OrderDAO orderDAO=new OrderDAOImpl();
-            ResultSet rst=orderDAO.generateNewOrderId();
+            String rst=orderDAO.generateNewOrderId();
 
-            return rst.next() ? String.format("OID-%03d", (Integer.parseInt(rst.getString("oid").replace("OID-", "")) + 1)) : "OID-001";
+            return rst != null ? String.format("OID-%03d", (Integer.parseInt(rst.replace("OID-", "")) + 1)) : "OID-001";
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "Failed to generate a new order id").show();
         } catch (ClassNotFoundException e) {
@@ -250,7 +257,7 @@ public class PlaceOrderFormController {
             ResultSet rst = stm.executeQuery("SELECT * FROM Customer");*/
 
             //CustomerDAOImpl customerDAO=new CustomerDAOImpl();
-            ArrayList<CustomerDTO> allCustomerIds=customerDAO.getAllCustomers();
+            ArrayList<CustomerDTO> allCustomerIds=customerDAO.getAll();
 
             /*while (rst.next()) {
                 cmbCustomerId.getItems().add(rst.getString("id"));
@@ -275,7 +282,7 @@ public class PlaceOrderFormController {
             ResultSet rst = stm.executeQuery("SELECT * FROM Item");*/
 
             //ItemDAOImpl itemDAO=new ItemDAOImpl();
-            ArrayList<ItemDTO> allItemCodes=itemDAO.getAllItems();
+            ArrayList<ItemDTO> allItemCodes=itemDAO.getAll();
 
             /*while (rst.next()) {
                 cmbItemCode.getItems().add(rst.getString("code"));
@@ -384,18 +391,18 @@ public class PlaceOrderFormController {
 
             connection=DBConnection.getDbConnection().getConnection();
 
-            //saOrderDAO orderDAO=new OrderDAOImpl();
-            boolean b1=orderDAO.existOrder(orderId);
-            if (b1){
+            //OrderDAO orderDAO=new OrderDAOImpl();
+            boolean s1=orderDAO.existOrder(orderId);
+            if (s1){
                 return false;
             }
 
             connection.setAutoCommit(false);
 
             //OrderDAO orderDAO1=new OrderDAOImpl();
-            boolean b2=orderDAO.saveOrder(new OrderDTO(orderId,orderDate,customerId));
+            boolean s2=orderDAO.saveOrder(new OrderDTO(orderId,orderDate,customerId));
 
-            if (!b2){
+            if (!s2){
                 connection.rollback();
                 connection.setAutoCommit(true);
                 return false;
@@ -405,10 +412,10 @@ public class PlaceOrderFormController {
 
             for (OrderDetailDTO detail : orderDetails) {
                 //OrderDetailsDAO orderDetailsDAO=new OrderDetailsDAOImpl();
-                boolean b3=orderDetailsDAO.saveOrderDetails(detail);
+                boolean s3=orderDetailsDAO.saveOrderDetails(detail);
 
 
-                if ( !b3) {
+                if ( !s3) {
                     connection.rollback();
                     connection.setAutoCommit(true);
                     return false;
@@ -419,7 +426,7 @@ public class PlaceOrderFormController {
                 item.setQtyOnHand(item.getQtyOnHand() - detail.getQty());
 
                 ItemDAOImpl itemDAO1=new ItemDAOImpl();
-                boolean b4=itemDAO1.updateItem(new ItemDTO(item.getCode(),item.getDescription(),item.getUnitPrice(),item.getQtyOnHand()));
+                boolean b4=itemDAO1.update(new ItemDTO(item.getCode(),item.getDescription(),item.getUnitPrice(),item.getQtyOnHand()));
 
                 if (!b4){
                     connection.rollback();
@@ -461,7 +468,7 @@ public class PlaceOrderFormController {
             ResultSet rst = pstm.executeQuery();
             rst.next();*/
             //ItemDAOImpl itemDAO=new ItemDAOImpl();
-            ItemDTO dto=itemDAO.findItem(code);
+            ItemDTO dto=itemDAO.search(code);
             return new ItemDTO(code,
                     dto.getDescription(),
                     dto.getUnitPrice(),
