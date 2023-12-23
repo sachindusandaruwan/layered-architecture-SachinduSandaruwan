@@ -7,7 +7,7 @@ public class CustomerOrderDTO {
     private String customerName;
     private String orderId;
     private String localDate;
-    private BigDecimal orderTotal;
+    //private BigDecimal orderTotal;
 
     public CustomerOrderDTO(String customerId, String customerName, String orderId, String localDate) {
         this.customerId=customerId;

@@ -1,5 +1,7 @@
 package com.example.layeredarchitecture.controller;
 
+import com.example.layeredarchitecture.bo.CustomerBO;
+import com.example.layeredarchitecture.bo.CustomerBOImpl;
 import com.example.layeredarchitecture.dao.custom.CustomerDAO;
 import com.example.layeredarchitecture.dao.custom.impl.CustomerDAOImpl;
 import com.example.layeredarchitecture.model.CustomerDTO;
@@ -65,7 +67,7 @@ public class ManageCustomersFormController {
         loadAllCustomers();
     }
 
-    CustomerDAO customerDAO=new CustomerDAOImpl();
+    CustomerBO customerBO=new CustomerBOImpl();
 
     private void loadAllCustomers() {
         tblCustomers.getItems().clear();
@@ -76,8 +78,8 @@ public class ManageCustomersFormController {
             Statement stm = connection.createStatement();
             ResultSet rst = stm.executeQuery("SELECT * FROM Customer");*/
 
-            //CustomerDAO customerDAO=new CustomerDAOImpl();
-            ArrayList<CustomerDTO> allCustomer=customerDAO.getAll();
+            //CustomerBOImpl customerBO=new CustomerBOImpl();
+            ArrayList<CustomerDTO> allCustomer=customerBO.getAllCustomer();
             for (CustomerDTO dto:allCustomer){
                 tblCustomers.getItems().add(
                         new CustomerTM(
@@ -167,8 +169,8 @@ public class ManageCustomersFormController {
                 pstm.setString(3, address);
                 pstm.executeUpdate();*/
 
-                //CustomerDAO customerDAO=new CustomerDAOImpl();
-                boolean isSaved=customerDAO.save(new CustomerDTO(id,name,address));
+                //CustomerBOImpl customerBO=new CustomerBOImpl();
+                boolean isSaved=customerBO.saveCustomer(new CustomerDTO(id,name,address));
 
                 if(isSaved) {
 
@@ -195,8 +197,8 @@ public class ManageCustomersFormController {
                 pstm.setString(3, id);
                 pstm.executeUpdate();*/
 
-                //CustomerDAO customerDAO=new CustomerDAOImpl();
-                boolean isUpdate=customerDAO.update(new CustomerDTO(id,name,address));
+                //CustomerBOImpl customerBO=new CustomerBOImpl();
+                boolean isUpdate=customerBO.updateCustomer(new CustomerDTO(id,name,address));
                 if (isUpdate){
                     CustomerTM selectedCustomer = tblCustomers.getSelectionModel().getSelectedItem();
                     selectedCustomer.setName(name);
@@ -222,8 +224,8 @@ public class ManageCustomersFormController {
         PreparedStatement pstm = connection.prepareStatement("SELECT id FROM Customer WHERE id=?");
         pstm.setString(1, id);
         return pstm.executeQuery().next();*/
-        //CustomerDAO customerDAO=new CustomerDAOImpl();
-        return customerDAO.exist(id);
+        //CustomerBOImpl customerBO=new CustomerBOImpl();
+        return customerBO.existCustomer(id);
     }
 
 
@@ -234,8 +236,8 @@ public class ManageCustomersFormController {
             if (!existCustomer(id)) {
                 new Alert(Alert.AlertType.ERROR, "There is no such customer associated with the id " + id).show();
             }
-            //CustomerDAO customerDAO=new CustomerDAOImpl();
-            boolean isDeleted=customerDAO.delete(id);
+            //CustomerBOImpl customerBO=new CustomerBOImpl();
+            boolean isDeleted=customerBO.deleteCustomer(id);
             /*Connection connection = DBConnection.getDbConnection().getConnection();
             PreparedStatement pstm = connection.prepareStatement("DELETE FROM Customer WHERE id=?");
             pstm.setString(1, id);
@@ -256,8 +258,8 @@ public class ManageCustomersFormController {
 
     private String generateNewId() {
         try {
-            //CustomerDAO customerDAO=new CustomerDAOImpl();
-            return customerDAO.generate();
+            //CustomerBOImpl customerBO=new CustomerBOImpl();
+            return customerBO.generateCustomer();
             /*Connection connection = DBConnection.getDbConnection().getConnection();
             ResultSet rst = connection.createStatement().executeQuery("SELECT id FROM Customer ORDER BY id DESC LIMIT 1;");
             if (rst.next()) {

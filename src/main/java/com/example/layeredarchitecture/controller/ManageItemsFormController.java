@@ -1,7 +1,7 @@
 package com.example.layeredarchitecture.controller;
 
-import com.example.layeredarchitecture.dao.custom.ItemDAO;
-import com.example.layeredarchitecture.dao.custom.impl.ItemDAOImpl;
+import com.example.layeredarchitecture.bo.ItemBO;
+import com.example.layeredarchitecture.bo.ItemBOImpl;
 import com.example.layeredarchitecture.model.ItemDTO;
 import com.example.layeredarchitecture.view.tdm.ItemTM;
 import com.jfoenix.controls.JFXButton;
@@ -66,8 +66,7 @@ public class ManageItemsFormController {
         txtQtyOnHand.setOnAction(event -> btnSave.fire());
         loadAllItems();
     }
-
-    ItemDAO itemDAO=new ItemDAOImpl();
+    ItemBO itemBO=new ItemBOImpl();
 
     private void loadAllItems() {
         tblItems.getItems().clear();
@@ -75,7 +74,7 @@ public class ManageItemsFormController {
             /*Get all items*/
 
             //ItemDAO itemDAO=new ItemDAOImpl();
-            ArrayList<ItemDTO> allItems=itemDAO.getAll();
+            ArrayList<ItemDTO> allItems=itemBO.getAllItem();
             for (ItemDTO dto:allItems){
                 ItemTM itemTM = new ItemTM(
                         dto.getCode(),
@@ -155,7 +154,7 @@ public class ManageItemsFormController {
             pstm.setString(1, code);
             pstm.executeUpdate();*/
             //ItemDAO itemDAO=new ItemDAOImpl();
-            boolean isDeleted=itemDAO.delete(code);
+            boolean isDeleted=itemBO.deleteItem(code);
 
             if(isDeleted) {
 
@@ -199,7 +198,7 @@ public class ManageItemsFormController {
                 }
                 //Save Item
                 //ItemDAO itemDAO=new ItemDAOImpl();
-                boolean isSaved=itemDAO.save(new ItemDTO(code,description,unitPrice,qtyOnHand));
+                boolean isSaved=itemBO.saveItem(new ItemDTO(code,description,unitPrice,qtyOnHand));
 
                 /*Connection connection = DBConnection.getDbConnection().getConnection();
                 PreparedStatement pstm = connection.prepareStatement("INSERT INTO Item (code, description, unitPrice, qtyOnHand) VALUES (?,?,?,?)");
@@ -229,7 +228,7 @@ public class ManageItemsFormController {
                 /*Update Item*/
 
                 //ItemDAO itemDAO=new ItemDAOImpl();
-                boolean isUpdated=itemDAO.update(new ItemDTO(code,description,unitPrice,qtyOnHand));
+                boolean isUpdated=itemBO.updateItem(new ItemDTO(code,description,unitPrice,qtyOnHand));
                 /*Connection connection = DBConnection.getDbConnection().getConnection();
                 PreparedStatement pstm = connection.prepareStatement("UPDATE Item SET description=?, unitPrice=?, qtyOnHand=? WHERE code=?");
                 pstm.setString(1, description);
@@ -264,7 +263,7 @@ public class ManageItemsFormController {
         pstm.setString(1, code);
         return pstm.executeQuery().next();*/
         //ItemDAO itemDAO=new ItemDAOImpl();
-        return itemDAO.exist(code);
+        return itemBO.existItem(code);
     }
 
 
@@ -272,7 +271,7 @@ public class ManageItemsFormController {
         try {
 
             //ItemDAO itemDAO=new ItemDAOImpl();
-            return itemDAO.generate();
+            return itemBO.generateItem();
             /*Connection connection = DBConnection.getDbConnection().getConnection();
             ResultSefindt rst = connection.createStatement().executeQuery("SELECT code FROM Item ORDER BY code DESC LIMIT 1;");
             if (rst.next()) {
